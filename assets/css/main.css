@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+body{
+  margin: auto
+}
 .app-container {
   min-height: 100vh;
   display: flex;

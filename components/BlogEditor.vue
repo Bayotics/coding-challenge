@@ -29,13 +29,9 @@
       <div class="mb-3">
         <label class="form-label">Content</label>
         <div class="editor-container border rounded">
-          <QuillEditor 
+          <ClientOnlyQuillEditor 
             :content="blogPost.content"
             @update:content="updateContent"
-            contentType="html" 
-            theme="snow"
-            toolbar="full"
-            class="editor"
           />
         </div>
       </div>
@@ -56,9 +52,8 @@
 </template>
 
 <script setup>
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { SaveIcon, FolderOpenIcon } from 'lucide-vue-next'
+import ClientOnlyQuillEditor from './ClientOnlyQuillEditor.vue'
 
 // Props and emits
 const props = defineProps({
@@ -87,9 +82,5 @@ const updateTags = (event) => {
 <style scoped>
 .editor-container {
   min-height: 300px;
-}
-
-.editor {
-  height: 300px;
 }
 </style>
