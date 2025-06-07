@@ -1,55 +1,80 @@
 <template>
-  <div class="card shadow-sm mb-4">
-    <div class="card-header">
-      <h2 class="h5 mb-0">AI Suggestions</h2>
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+      <h2 class="text-sm font-medium text-gray-700">AI Suggestions</h2>
     </div>
     
     <!-- API Key Warning (only shown if API key is missing) -->
-    <div v-if="!hasApiKey" class="alert alert-warning m-3">
-      <strong>Missing API Key:</strong> Please add your OpenAI API key to the .env file.
-      <div class="mt-2">
-        <small>
-          Add <code>VITE_OPENAI_API_KEY=your_api_key_here</code> to your .env file and restart the server.
-        </small>
+    <div v-if="!hasApiKey" class="p-4 bg-yellow-50 border-b border-yellow-100">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <AlertTriangleIcon class="h-5 w-5 text-yellow-400" />
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-yellow-800">Missing API Key</h3>
+          <div class="mt-1 text-sm text-yellow-700">
+            <p>Please add your OpenAI API key to the .env file.</p>
+            <p class="mt-1 text-xs">
+              Add <code class="bg-yellow-100 px-1 py-0.5 rounded">VITE_OPENAI_API_KEY=your_api_key_here</code> to your .env file and restart the server.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- AI Suggestion Buttons -->
-    <div class="card-body">
-      <div class="d-grid gap-2">
+    <div class="p-4">
+      <div class="space-y-3">
         <button 
-          class="btn btn-primary" 
+          class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="generateTitle" 
           :disabled="isGenerating || !hasContent || !hasApiKey"
         >
-          <SparklesIcon class="me-1" size="16" />
+          <SparklesIcon class="w-4 h-4 mr-2" />
           Generate Title
         </button>
         <button 
-          class="btn btn-primary" 
+          class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="generateSummary" 
           :disabled="isGenerating || !hasContent || !hasApiKey"
         >
-          <FileTextIcon class="me-1" size="16" />
+          <FileTextIcon class="w-4 h-4 mr-2" />
           Summarize Content
         </button>
         <button 
-          class="btn btn-primary" 
+          class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="generateKeywords" 
           :disabled="isGenerating || !hasContent || !hasApiKey"
         >
-          <TagIcon class="me-1" size="16" />
+          <TagIcon class="w-4 h-4 mr-2" />
           Suggest Keywords
         </button>
       </div>
 
-      <LoadingSpinner v-if="isGenerating" />
+      <div v-if="isGenerating" class="mt-4 flex justify-center">
+        <div class="flex flex-col items-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p class="mt-2 text-sm text-gray-500">Generating suggestions...</p>
+        </div>
+      </div>
 
-      <SuggestionCard 
-        v-if="currentSuggestion.content"
-        :suggestion="currentSuggestion"
-        @apply="handleApplySuggestion"
-      />
+      <div v-if="currentSuggestion.content" class="mt-4">
+        <div class="bg-gray-50 border border-gray-200 rounded-md overflow-hidden">
+          <div class="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-700">{{ currentSuggestion.type }}</span>
+            <button 
+              v-if="!isErrorMessage"
+              @click="handleApplySuggestion"
+              class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+            >
+              Apply
+            </button>
+          </div>
+          <div class="p-4">
+            <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ currentSuggestion.content }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -58,9 +83,7 @@
 import { ref, computed } from 'vue'
 import { generateText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
-import { SparklesIcon, FileTextIcon, TagIcon } from 'lucide-vue-next'
-import LoadingSpinner from './LoadingSpinner.vue'
-import SuggestionCard from './SuggestionCard.vue'
+import { SparklesIcon, FileTextIcon, TagIcon, AlertTriangleIcon } from 'lucide-vue-next'
 
 // Get API key from environment variables
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
@@ -94,6 +117,15 @@ const hasContent = computed(() => {
 
 const hasApiKey = computed(() => {
   return OPENAI_API_KEY && OPENAI_API_KEY.trim() !== ''
+})
+
+// Check if the current suggestion is an error message
+const isErrorMessage = computed(() => {
+  const content = currentSuggestion.value.content.toLowerCase()
+  return content.includes('error') || 
+         content.includes('missing') || 
+         content.includes('invalid') || 
+         content.includes('failed') 
 })
 
 // Utility functions
@@ -172,4 +204,18 @@ const generateKeywords = () => {
 const handleApplySuggestion = () => {
   emit('applySuggestion', currentSuggestion.value)
 }
+
+// Add this function to clear the current suggestion
+const clearSuggestions = () => {
+  currentSuggestion.value = {
+    type: '',
+    content: ''
+  }
+  isGenerating.value = false
+}
+
+// Expose the clearSuggestions method so parent can call it
+defineExpose({
+  clearSuggestions
+})
 </script>

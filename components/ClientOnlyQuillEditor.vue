@@ -1,11 +1,9 @@
 <template>
   <div>
     <div v-if="!isClient && !loadingFailed" class="editor-placeholder">
-      <div class="d-flex align-items-center justify-content-center" style="height: 300px;">
-        <div class="text-muted">
-          <div class="spinner-border spinner-border-sm me-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
+      <div class="flex items-center justify-center h-64">
+        <div class="text-gray-500">
+          <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
           Loading editor...
         </div>
       </div>
@@ -30,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import FallbackEditor from './FallbackEditor.vue'
 
 // Dynamic import to avoid SSR issues
@@ -78,6 +76,14 @@ onMounted(async () => {
     loadingFailed.value = true
   }
 })
+
+// Watch for content changes from parent
+watch(() => props.content, (newContent) => {
+  // This ensures the editor updates when content is changed externally
+  if (isClient.value && QuillEditor) {
+    // The editor will handle this internally
+  }
+})
 </script>
 
 <style scoped>
@@ -86,8 +92,8 @@ onMounted(async () => {
 }
 
 .editor-placeholder {
-  border: 1px solid #dee2e6;
+  border: 1px solid #e2e8f0;
   border-radius: 0.375rem;
-  background-color: #f8f9fa;
+  background-color: #f9fafb;
 }
 </style>

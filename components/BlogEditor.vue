@@ -1,24 +1,11 @@
 <template>
-  <div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2 class="h5 mb-0">Blog Editor</h2>
-      <div>
-        <button class="btn btn-outline-secondary me-2" @click="$emit('saveDraft')">
-          <SaveIcon class="me-1" size="16" />
-          Save Draft
-        </button>
-        <button class="btn btn-outline-primary" @click="$emit('loadDrafts')">
-          <FolderOpenIcon class="me-1" size="16" />
-          Load Draft
-        </button>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="mb-3">
-        <label for="blogTitle" class="form-label">Title</label>
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="p-4 border-b border-gray-200">
+      <div class="mb-4">
+        <label for="blogTitle" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
         <input 
           type="text" 
-          class="form-control" 
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
           id="blogTitle" 
           :value="blogPost.title"
           @input="updateTitle"
@@ -26,9 +13,9 @@
         >
       </div>
       
-      <div class="mb-3">
-        <label class="form-label">Content</label>
-        <div class="editor-container border rounded">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+        <div class="border border-gray-300 rounded-md overflow-hidden">
           <ClientOnlyQuillEditor 
             :content="blogPost.content"
             @update:content="updateContent"
@@ -36,11 +23,11 @@
         </div>
       </div>
       
-      <div class="mb-3">
-        <label for="blogTags" class="form-label">Tags</label>
+      <div>
+        <label for="blogTags" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
         <input 
           type="text" 
-          class="form-control" 
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
           id="blogTags" 
           :value="blogPost.tags"
           @input="updateTags"
@@ -52,7 +39,6 @@
 </template>
 
 <script setup>
-import { SaveIcon, FolderOpenIcon } from 'lucide-vue-next'
 import ClientOnlyQuillEditor from './ClientOnlyQuillEditor.vue'
 
 // Props and emits
@@ -63,7 +49,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:blogPost', 'saveDraft', 'loadDrafts'])
+const emit = defineEmits(['update:blogPost', 'saveDraft'])
 
 // Update methods
 const updateTitle = (event) => {
@@ -78,9 +64,3 @@ const updateTags = (event) => {
   emit('update:blogPost', { ...props.blogPost, tags: event.target.value })
 }
 </script>
-
-<style scoped>
-.editor-container {
-  min-height: 300px;
-}
-</style>
