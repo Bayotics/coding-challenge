@@ -1,1 +1,47 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.editor-container {
+  min-height: 300px;
+}
+
+.editor {
+  height: 300px;
+}
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1050;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
