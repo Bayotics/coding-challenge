@@ -36,7 +36,7 @@
             <FileTextIcon class="w-4 h-4 mr-2 flex-shrink-0" />
             <span class="truncate flex-grow">{{ draft.title || 'Untitled Draft' }}</span>
             <button 
-              @click.stop="handleDeleteDraft(index)" 
+              @click.stop="confirmDeleteDraft(index)" 
               class="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <TrashIcon class="w-4 h-4" />
@@ -106,7 +106,7 @@
             <FileTextIcon class="w-4 h-4 mr-2 flex-shrink-0" />
             <span class="truncate flex-grow">{{ draft.title || 'Untitled Draft' }}</span>
             <button 
-              @click.stop="handleDeleteDraft(index)" 
+              @click.stop="confirmDeleteDraft(index)" 
               class="text-gray-400 hover:text-white"
             >
               <TrashIcon class="w-4 h-4" />
@@ -134,7 +134,7 @@
           </div>
           <div class="flex items-center space-x-2">
             <button 
-              @click="handleSaveDraft" 
+              @click="confirmSaveDraft" 
               class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex items-center"
             >
               <SaveIcon class="w-4 h-4 mr-1" />
@@ -153,7 +153,7 @@
               <BlogEditor 
                 v-model:blog-post="blogPost"
                 :key="editorKey"
-                @save-draft="handleSaveDraft"
+                @save-draft="confirmSaveDraft"
               />
             </div>
             
@@ -196,6 +196,21 @@
         </div>
       </div>
     </div>
+    
+    <!-- Confirmation Dialog -->
+    <ConfirmationDialog
+      :visible="confirmationDialog.visible"
+      :title="confirmationDialog.title"
+      :message="confirmationDialog.message"
+      :type="confirmationDialog.type"
+      :confirm-text="confirmationDialog.confirmText"
+      :cancel-text="confirmationDialog.cancelText"
+      @confirm="handleConfirmationConfirm"
+      @cancel="handleConfirmationCancel"
+    />
+    
+    <!-- Toast Container -->
+    <ToastContainer ref="toastContainerRef" />
   </div>
 </template>
 
@@ -212,6 +227,8 @@ import {
 } from 'lucide-vue-next'
 import BlogEditor from './components/BlogEditor.vue'
 import AISuggestionPanel from './components/AISuggestionPanel.vue'
+import ToastContainer from './components/ToastContainer.vue'
+import ConfirmationDialog from './components/ConfirmationDialog.vue'
 
 // Application state
 const blogPost = ref({
@@ -227,6 +244,19 @@ const currentDraftIndex = ref(-1)
 const editorKey = ref(0) // Key to force re-render of editor
 const showStorageError = ref(false)
 const aiSuggestionPanelRef = ref(null)
+const toastContainerRef = ref(null)
+
+// Confirmation dialog state
+const confirmationDialog = ref({
+  visible: false,
+  title: '',
+  message: '',
+  type: 'info',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
+  action: null,
+  data: null
+})
 
 // Storage management
 const MAX_DRAFTS = 50 // Maximum number of drafts to keep
@@ -238,6 +268,45 @@ const storageWarning = computed(() => {
 onMounted(() => {
   loadSavedDrafts()
 })
+
+// Toast notification methods
+const showToast = (message, type = 'success') => {
+  if (toastContainerRef.value) {
+    toastContainerRef.value.addToast({
+      message,
+      type,
+      duration: 3000,
+      position: 'bottom-4 right-4'
+    })
+  }
+}
+
+// Confirmation dialog methods
+const showConfirmationDialog = (options) => {
+  confirmationDialog.value = {
+    visible: true,
+    title: options.title,
+    message: options.message,
+    type: options.type || 'info',
+    confirmText: options.confirmText || 'Confirm',
+    cancelText: options.cancelText || 'Cancel',
+    action: options.action,
+    data: options.data
+  }
+}
+
+const handleConfirmationConfirm = () => {
+  const { action, data } = confirmationDialog.value
+  confirmationDialog.value.visible = false
+  
+  if (action && typeof action === 'function') {
+    action(data)
+  }
+}
+
+const handleConfirmationCancel = () => {
+  confirmationDialog.value.visible = false
+}
 
 // Draft management functions
 const loadSavedDrafts = () => {
@@ -254,6 +323,7 @@ const loadSavedDrafts = () => {
   } catch (error) {
     console.error('Error loading drafts:', error)
     savedDrafts.value = []
+    showToast('Failed to load drafts from storage', 'error')
   }
 }
 
@@ -263,11 +333,13 @@ const saveDraftsToStorage = () => {
     const draftsToSave = savedDrafts.value.slice(0, MAX_DRAFTS)
     localStorage.setItem('blogDrafts', JSON.stringify(draftsToSave))
     savedDrafts.value = draftsToSave
+    return true
   } catch (error) {
     console.error('Storage error:', error)
     if (error.name === 'QuotaExceededError') {
       showStorageError.value = true
     }
+    return false
   }
 }
 
@@ -289,12 +361,18 @@ const cleanupOldDrafts = () => {
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 20)
   
-  saveDraftsToStorage()
+  const success = saveDraftsToStorage()
   showStorageError.value = false
   
   // Reset current draft index if it was affected
   if (currentDraftIndex.value >= savedDrafts.value.length) {
     currentDraftIndex.value = -1
+  }
+  
+  if (success) {
+    showToast('Old drafts cleaned up successfully', 'success')
+  } else {
+    showToast('Failed to clean up drafts', 'error')
   }
 }
 
@@ -307,12 +385,29 @@ const hasContent = () => {
 }
 
 // Event handlers
-const handleSaveDraft = () => {
+const confirmSaveDraft = () => {
   // Don't save empty drafts
   if (!hasContent()) {
+    showToast('Cannot save empty draft', 'error')
     return
   }
+
+  const draftTitle = blogPost.value.title || 'Untitled Draft'
+  const isUpdate = currentDraftIndex.value >= 0
   
+  showConfirmationDialog({
+    title: isUpdate ? 'Update Draft' : 'Save Draft',
+    message: isUpdate 
+      ? `Are you sure you want to update the draft "${draftTitle}"?`
+      : `Are you sure you want to save this draft as "${draftTitle}"?`,
+    type: 'info',
+    confirmText: isUpdate ? 'Update' : 'Save',
+    cancelText: 'Cancel',
+    action: handleSaveDraft
+  })
+}
+
+const handleSaveDraft = () => {
   const newDraft = {
     ...blogPost.value,
     timestamp: new Date().toISOString()
@@ -327,7 +422,13 @@ const handleSaveDraft = () => {
     currentDraftIndex.value = 0
   }
   
-  saveDraftsToStorage()
+  const success = saveDraftsToStorage()
+  
+  if (success) {
+    showToast('Draft saved successfully', 'success')
+  } else {
+    showToast('Failed to save draft', 'error')
+  }
 }
 
 const handleLoadDraft = (index) => {
@@ -336,12 +437,28 @@ const handleLoadDraft = (index) => {
   currentDraftIndex.value = index
   // Force re-render of editor to ensure content is updated
   editorKey.value++
+  showToast('Draft loaded', 'success')
+}
+
+const confirmDeleteDraft = (index) => {
+  const draft = savedDrafts.value[index]
+  const draftTitle = draft.title || 'Untitled Draft'
+  
+  showConfirmationDialog({
+    title: 'Delete Draft',
+    message: `Are you sure you want to delete the draft "${draftTitle}"? This action cannot be undone.`,
+    type: 'danger',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    action: handleDeleteDraft,
+    data: index
+  })
 }
 
 const handleDeleteDraft = (index) => {
-  if (confirm('Are you sure you want to delete this draft?')) {
+  try {
     savedDrafts.value.splice(index, 1)
-    saveDraftsToStorage()
+    const success = saveDraftsToStorage()
     
     if (currentDraftIndex.value === index) {
       // If we deleted the current draft, reset
@@ -358,6 +475,15 @@ const handleDeleteDraft = (index) => {
       // Adjust current index if needed
       currentDraftIndex.value--
     }
+    
+    if (success) {
+      showToast('Draft deleted successfully', 'success')
+    } else {
+      showToast('Draft deleted but failed to update storage', 'error')
+    }
+  } catch (error) {
+    console.error('Error deleting draft:', error)
+    showToast('Failed to delete draft', 'error')
   }
 }
 
@@ -381,15 +507,22 @@ const handleNewDraft = () => {
   
   // Force re-render of editor to ensure content is cleared
   editorKey.value++
+  
+  showToast('New draft created', 'success')
 }
 
 const handleApplySuggestion = ({ type, content }) => {
   if (type === 'Title Suggestion') {
     blogPost.value.title = content
+    showToast('Title applied successfully', 'success')
   } else if (type === 'Keyword Suggestions') {
     // Clean the tags response
     const cleanedTags = cleanTagsResponse(content)
     blogPost.value.tags = cleanedTags
+    showToast('Keywords applied successfully', 'success')
+  } else if (type === 'Summary Suggestion') {
+    // Note: Summary application logic can be added here when needed
+    showToast('Summary applied successfully', 'success')
   }
 }
 
@@ -423,10 +556,7 @@ const cleanTagsResponse = (rawResponse) => {
   return cleanedTags.join(', ')
 }
 
-// Add this function to clear AI suggestions
 const clearAISuggestions = () => {
-  // We'll emit an event to the AI suggestions panel to clear its state
-  // Since we can't directly access the child component's state, we'll use a ref
   if (aiSuggestionPanelRef.value) {
     aiSuggestionPanelRef.value.clearSuggestions()
   }

@@ -81,7 +81,7 @@ onMounted(async () => {
 watch(() => props.content, (newContent) => {
   // This ensures the editor updates when content is changed externally
   if (isClient.value && QuillEditor) {
-    // The editor will handle this internally
+
   }
 })
 </script>

@@ -205,7 +205,6 @@ const handleApplySuggestion = () => {
   emit('applySuggestion', currentSuggestion.value)
 }
 
-// Add this function to clear the current suggestion
 const clearSuggestions = () => {
   currentSuggestion.value = {
     type: '',
