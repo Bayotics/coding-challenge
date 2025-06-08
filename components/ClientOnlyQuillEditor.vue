@@ -18,18 +18,11 @@
       :toolbar="toolbarOptions"
       class="editor"
     />
-    
-    <FallbackEditor
-      v-if="loadingFailed"
-      :content="content"
-      @update:content="$emit('update:content', $event)"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import FallbackEditor from './FallbackEditor.vue'
 
 // Dynamic import to avoid SSR issues
 let QuillEditor = null
