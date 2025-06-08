@@ -14,7 +14,6 @@ A modern, responsive Vue.js application that helps content creators draft blog p
 
 ### 📝 Rich Text Editing
 - **Quill Editor Integration**: Professional rich text editing with formatting options
-- **Fallback Editor**: Graceful degradation with a custom HTML editor if Quill fails to load
 - **Real-time Preview**: See your content formatted as you type
 - **HTML Content Support**: Full HTML editing capabilities
 
