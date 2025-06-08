@@ -61,7 +61,7 @@
           <div class="card-header d-flex justify-content-between align-items-center bg-light">
             <span class="text-secondary">{{ currentSuggestion.type }}</span>
             <button 
-              v-if="!isErrorMessage"
+              v-if="!isErrorMessage && currentSuggestion.type !== 'Summary Suggestion'"
               @click="handleApplySuggestion"
               class="btn btn-sm btn-primary"
             >
