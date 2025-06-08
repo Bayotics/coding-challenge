@@ -85,7 +85,7 @@
         <div class="px-3 py-2 d-flex align-items-center justify-content-between">
           <h2 class="text-uppercase small fw-semibold text-secondary mb-0">Saved Drafts</h2>
           <button 
-            @click="handleNewDraft; showMobileSidebar = false" 
+            @click="handleNewDraftMobile" 
             class="btn btn-sm btn-primary d-flex align-items-center"
           >
             <PlusIcon class="me-1" style="width: 0.75rem; height: 0.75rem;" />
@@ -523,6 +523,11 @@ const handleNewDraft = () => {
   showToast('New draft created', 'success')
 }
 
+const handleNewDraftMobile = () => {
+  handleNewDraft();
+  showMobileSidebar.value = false;
+}
+
 const handleApplySuggestion = ({ type, content }) => {
   if (type === 'Title Suggestion') {
     blogPost.value.title = content
@@ -533,11 +538,11 @@ const handleApplySuggestion = ({ type, content }) => {
     blogPost.value.tags = cleanedTags
     showToast('Keywords applied successfully', 'success')
   } else if (type === 'Summary Suggestion') {
+    // Note: Summary application logic can be added here when needed
     showToast('Summary applied successfully', 'success')
   }
 }
 
-// Add this new function to clean tags response
 const cleanTagsResponse = (rawResponse) => {
   // Split the response into lines
   const lines = rawResponse.split('\n')
