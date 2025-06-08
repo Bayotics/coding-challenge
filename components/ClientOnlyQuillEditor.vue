@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="!isClient && !loadingFailed" class="editor-placeholder">
-      <div class="flex items-center justify-center h-64">
-        <div class="text-gray-500">
-          <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+      <div class="d-flex align-items-center justify-content-center" style="height: 16rem;">
+        <div class="text-secondary">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
           Loading editor...
         </div>
       </div>
@@ -81,7 +81,6 @@ onMounted(async () => {
 watch(() => props.content, (newContent) => {
   // This ensures the editor updates when content is changed externally
   if (isClient.value && QuillEditor) {
-
   }
 })
 </script>
@@ -92,8 +91,8 @@ watch(() => props.content, (newContent) => {
 }
 
 .editor-placeholder {
-  border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
-  background-color: #f9fafb;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  background-color: #f8f9fa;
 }
 </style>

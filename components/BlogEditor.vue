@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-    <div class="p-4 border-b border-gray-200">
-      <div class="mb-4">
-        <label for="blogTitle" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <label for="blogTitle" class="form-label">Title</label>
         <input 
           type="text" 
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          class="form-control" 
           id="blogTitle" 
           :value="blogPost.title"
           @input="updateTitle"
@@ -13,9 +13,9 @@
         >
       </div>
       
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
-        <div class="border border-gray-300 rounded-md overflow-hidden">
+      <div class="mb-3">
+        <label class="form-label">Content</label>
+        <div class="border rounded">
           <ClientOnlyQuillEditor 
             :content="blogPost.content"
             @update:content="updateContent"
@@ -24,10 +24,10 @@
       </div>
       
       <div>
-        <label for="blogTags" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+        <label for="blogTags" class="form-label">Tags</label>
         <input 
           type="text" 
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          class="form-control" 
           id="blogTags" 
           :value="blogPost.tags"
           @input="updateTags"

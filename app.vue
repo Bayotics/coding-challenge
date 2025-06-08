@@ -1,52 +1,54 @@
 <template>
-  <div class="flex h-screen bg-gray-100 overflow-hidden">
+  <div class="d-flex vh-100 bg-light overflow-hidden">
     <!-- Sidebar -->
-    <div class="w-64 bg-gray-900 text-white flex-shrink-0 overflow-y-auto hidden md:block">
-      <div class="p-4 border-b border-gray-800">
-        <h1 class="text-xl font-bold">AI Blog Assistant</h1>
+    <div class="bg-dark text-white flex-shrink-0 overflow-auto d-none d-md-block" style="width: 16rem;">
+      <div class="p-3 border-bottom border-secondary">
+        <h1 class="h5 fw-bold mb-0">AI Blog Assistant</h1>
       </div>
       
       <!-- Drafts Navigation -->
       <div class="py-2">
-        <div class="px-4 py-2 flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-gray-400 uppercase">Saved Drafts</h2>
+        <div class="px-3 py-2 d-flex align-items-center justify-content-between">
+          <h2 class="text-uppercase small fw-semibold text-secondary mb-0">Saved Drafts</h2>
           <button 
             @click="handleNewDraft" 
-            class="text-xs bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded flex items-center"
+            class="btn btn-sm btn-primary d-flex align-items-center"
           >
-            <PlusIcon class="w-3 h-3 mr-1" />
+            <PlusIcon class="me-1" style="width: 0.75rem; height: 0.75rem;" />
             New
           </button>
         </div>
         
-        <div v-if="savedDrafts.length === 0" class="px-4 py-3 text-sm text-gray-400">
+        <div v-if="savedDrafts.length === 0" class="px-3 py-2 text-secondary small">
           No drafts saved yet
         </div>
         
-        <ul v-else class="space-y-1">
+        <ul class="list-unstyled mb-0">
           <li 
             v-for="(draft, index) in savedDrafts" 
             :key="index"
             :class="[
-              'px-4 py-2 text-sm cursor-pointer flex items-center group',
-              currentDraftIndex === index ? 'bg-blue-800 text-white' : 'hover:bg-gray-800'
+              'px-3 py-2 small cursor-pointer d-flex align-items-center',
+              currentDraftIndex === index ? 'bg-primary text-white' : 'text-white hover-bg-secondary'
             ]"
             @click="handleLoadDraft(index)"
+            style="cursor: pointer;"
           >
-            <FileTextIcon class="w-4 h-4 mr-2 flex-shrink-0" />
-            <span class="truncate flex-grow">{{ draft.title || 'Untitled Draft' }}</span>
+            <FileTextIcon class="me-2 flex-shrink-0" style="width: 1rem; height: 1rem;" />
+            <span class="text-truncate flex-grow-1">{{ draft.title || 'Untitled Draft' }}</span>
             <button 
               @click.stop="confirmDeleteDraft(index)" 
-              class="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              class="btn btn-sm btn-link text-white p-0 opacity-0 hover-opacity-100"
+              style="transition: opacity 0.2s;"
             >
-              <TrashIcon class="w-4 h-4" />
+              <TrashIcon style="width: 1rem; height: 1rem;" />
             </button>
           </li>
         </ul>
         
         <!-- Storage Warning -->
-        <div v-if="storageWarning" class="px-4 py-2 mt-2">
-          <div class="bg-yellow-800 text-yellow-200 text-xs p-2 rounded">
+        <div v-if="storageWarning" class="px-3 py-2 mt-2">
+          <div class="bg-warning-subtle text-warning-emphasis small p-2 rounded">
             Storage almost full. Consider deleting old drafts.
           </div>
         </div>
@@ -54,69 +56,72 @@
     </div>
     
     <!-- Mobile Sidebar Toggle -->
-    <div class="md:hidden fixed bottom-4 left-4 z-50">
+    <div class="d-md-none position-fixed bottom-0 start-0 mb-4 ms-4" style="z-index: 1030;">
       <button 
         @click="showMobileSidebar = !showMobileSidebar" 
-        class="bg-blue-600 text-white p-3 rounded-full shadow-lg"
+        class="btn btn-primary rounded-circle shadow"
+        style="width: 3rem; height: 3rem;"
       >
-        <MenuIcon v-if="!showMobileSidebar" class="w-5 h-5" />
-        <XIcon v-else class="w-5 h-5" />
+        <MenuIcon v-if="!showMobileSidebar" style="width: 1.25rem; height: 1.25rem;" />
+        <XIcon v-else style="width: 1.25rem; height: 1.25rem;" />
       </button>
     </div>
     
     <!-- Mobile Sidebar -->
     <div 
       v-if="showMobileSidebar" 
-      class="fixed inset-0 bg-gray-900 text-white z-40 md:hidden"
+      class="position-fixed top-0 start-0 bottom-0 end-0 bg-dark text-white d-md-none"
+      style="z-index: 1020;"
     >
-      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-        <h1 class="text-xl font-bold">AI Blog Assistant</h1>
-        <button @click="showMobileSidebar = false" class="text-gray-400">
-          <XIcon class="w-6 h-6" />
+      <div class="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
+        <h1 class="h5 fw-bold mb-0">AI Blog Assistant</h1>
+        <button @click="showMobileSidebar = false" class="btn btn-link text-secondary p-0">
+          <XIcon style="width: 1.5rem; height: 1.5rem;" />
         </button>
       </div>
       
       <!-- Mobile Drafts Navigation -->
       <div class="py-2">
-        <div class="px-4 py-2 flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-gray-400 uppercase">Saved Drafts</h2>
+        <div class="px-3 py-2 d-flex align-items-center justify-content-between">
+          <h2 class="text-uppercase small fw-semibold text-secondary mb-0">Saved Drafts</h2>
           <button 
             @click="handleNewDraft; showMobileSidebar = false" 
-            class="text-xs bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded flex items-center"
+            class="btn btn-sm btn-primary d-flex align-items-center"
           >
-            <PlusIcon class="w-3 h-3 mr-1" />
+            <PlusIcon class="me-1" style="width: 0.75rem; height: 0.75rem;" />
             New
           </button>
         </div>
         
-        <div v-if="savedDrafts.length === 0" class="px-4 py-3 text-sm text-gray-400">
+        <div v-if="savedDrafts.length === 0" class="px-3 py-2 text-secondary small">
           No drafts saved yet
         </div>
         
-        <ul v-else class="space-y-1">
+        <ul class="list-unstyled mb-0">
           <li 
             v-for="(draft, index) in savedDrafts" 
             :key="index"
             :class="[
-              'px-4 py-2 text-sm cursor-pointer flex items-center',
-              currentDraftIndex === index ? 'bg-blue-800 text-white' : 'hover:bg-gray-800'
+              'px-3 py-2 small cursor-pointer d-flex align-items-center',
+              currentDraftIndex === index ? 'bg-primary text-white' : 'text-white hover-bg-secondary'
             ]"
             @click="handleLoadDraft(index); showMobileSidebar = false"
+            style="cursor: pointer;"
           >
-            <FileTextIcon class="w-4 h-4 mr-2 flex-shrink-0" />
-            <span class="truncate flex-grow">{{ draft.title || 'Untitled Draft' }}</span>
+            <FileTextIcon class="me-2 flex-shrink-0" style="width: 1rem; height: 1rem;" />
+            <span class="text-truncate flex-grow-1">{{ draft.title || 'Untitled Draft' }}</span>
             <button 
               @click.stop="confirmDeleteDraft(index)" 
-              class="text-gray-400 hover:text-white"
+              class="btn btn-sm btn-link text-white p-0"
             >
-              <TrashIcon class="w-4 h-4" />
+              <TrashIcon style="width: 1rem; height: 1rem;" />
             </button>
           </li>
         </ul>
         
         <!-- Mobile Storage Warning -->
-        <div v-if="storageWarning" class="px-4 py-2 mt-2">
-          <div class="bg-yellow-800 text-yellow-200 text-xs p-2 rounded">
+        <div v-if="storageWarning" class="px-3 py-2 mt-2">
+          <div class="bg-warning-subtle text-warning-emphasis small p-2 rounded">
             Storage almost full. Consider deleting old drafts.
           </div>
         </div>
@@ -124,20 +129,20 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
       <!-- Header -->
-      <header class="bg-white border-b border-gray-200 shadow-sm">
-        <div class="flex items-center justify-between px-4 py-3">
-          <div class="flex items-center space-x-2">
-            <MenuIcon class="w-5 h-5 text-gray-500 md:hidden" @click="showMobileSidebar = !showMobileSidebar" />
-            <h1 class="text-lg font-medium text-gray-800">{{ blogPost.title || 'Untitled Draft' }}</h1>
+      <header class="bg-white border-bottom shadow-sm">
+        <div class="d-flex align-items-center justify-content-between px-3 py-2">
+          <div class="d-flex align-items-center">
+            <MenuIcon class="me-2 d-md-none text-secondary" style="width: 1.25rem; height: 1.25rem;" @click="showMobileSidebar = !showMobileSidebar" />
+            <h1 class="h5 fw-medium text-dark mb-0">{{ blogPost.title || 'Untitled Draft' }}</h1>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="d-flex align-items-center">
             <button 
               @click="confirmSaveDraft" 
-              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex items-center"
+              class="btn btn-primary d-flex align-items-center"
             >
-              <SaveIcon class="w-4 h-4 mr-1" />
+              <SaveIcon class="me-1" style="width: 1rem; height: 1rem;" />
               Save Draft
             </button>
           </div>
@@ -145,11 +150,11 @@
       </header>
       
       <!-- Content Area -->
-      <div class="flex-1 overflow-auto">
-        <div class="container mx-auto p-4">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="flex-grow-1 overflow-auto">
+        <div class="container-fluid py-4">
+          <div class="row g-4">
             <!-- Blog Editor -->
-            <div class="lg:col-span-2">
+            <div class="col-lg-8">
               <BlogEditor 
                 v-model:blog-post="blogPost"
                 :key="editorKey"
@@ -158,7 +163,7 @@
             </div>
             
             <!-- AI Suggestions Panel -->
-            <div>
+            <div class="col-lg-4">
               <AISuggestionPanel 
                 ref="aiSuggestionPanelRef"
                 :blog-post="blogPost"
@@ -171,28 +176,35 @@
     </div>
 
     <!-- Storage Error Modal -->
-    <div v-if="showStorageError" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center mb-4">
-          <AlertTriangleIcon class="w-6 h-6 text-red-500 mr-2" />
-          <h3 class="text-lg font-semibold">Storage Full</h3>
-        </div>
-        <p class="text-gray-600 mb-4">
-          Your browser storage is full. Please delete some old drafts to save new ones.
-        </p>
-        <div class="flex justify-end space-x-2">
-          <button 
-            @click="showStorageError = false" 
-            class="px-4 py-2 text-gray-600 hover:text-gray-800"
-          >
-            Cancel
-          </button>
-          <button 
-            @click="cleanupOldDrafts" 
-            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Delete Old Drafts
-          </button>
+    <div v-if="showStorageError" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title d-flex align-items-center">
+              <AlertTriangleIcon class="text-danger me-2" style="width: 1.5rem; height: 1.5rem;" />
+              Storage Full
+            </h5>
+            <button type="button" class="btn-close" @click="showStorageError = false"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-secondary mb-0">
+              Your browser storage is full. Please delete some old drafts to save new ones.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button 
+              @click="showStorageError = false" 
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="cleanupOldDrafts" 
+              class="btn btn-danger"
+            >
+              Delete Old Drafts
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -521,7 +533,6 @@ const handleApplySuggestion = ({ type, content }) => {
     blogPost.value.tags = cleanedTags
     showToast('Keywords applied successfully', 'success')
   } else if (type === 'Summary Suggestion') {
-    // Note: Summary application logic can be added here when needed
     showToast('Summary applied successfully', 'success')
   }
 }
@@ -562,3 +573,15 @@ const clearAISuggestions = () => {
   }
 }
 </script>
+
+<style>
+/* Add Bootstrap hover effect for sidebar items */
+.hover-bg-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Add hover effect for buttons */
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+</style>

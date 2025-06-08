@@ -1,20 +1,20 @@
 <template>
   <div class="fallback-editor">
-    <div class="editor-toolbar border-b p-2 bg-gray-50">
-      <div class="flex space-x-1">
-        <button type="button" class="p-1 rounded hover:bg-gray-200" @click="formatText('bold')" title="Bold">
+    <div class="border-bottom p-2 bg-light">
+      <div class="d-flex gap-1">
+        <button type="button" class="btn btn-sm btn-light" @click="formatText('bold')" title="Bold">
           <strong>B</strong>
         </button>
-        <button type="button" class="p-1 rounded hover:bg-gray-200" @click="formatText('italic')" title="Italic">
+        <button type="button" class="btn btn-sm btn-light" @click="formatText('italic')" title="Italic">
           <em>I</em>
         </button>
-        <button type="button" class="p-1 rounded hover:bg-gray-200" @click="formatText('underline')" title="Underline">
+        <button type="button" class="btn btn-sm btn-light" @click="formatText('underline')" title="Underline">
           <u>U</u>
         </button>
-        <button type="button" class="p-1 rounded hover:bg-gray-200" @click="formatText('insertUnorderedList')" title="Bullet List">
+        <button type="button" class="btn btn-sm btn-light" @click="formatText('insertUnorderedList')" title="Bullet List">
           •
         </button>
-        <button type="button" class="p-1 rounded hover:bg-gray-200" @click="formatText('insertOrderedList')" title="Numbered List">
+        <button type="button" class="btn btn-sm btn-light" @click="formatText('insertOrderedList')" title="Numbered List">
           1.
         </button>
       </div>

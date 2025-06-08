@@ -1,31 +1,34 @@
 <template>
-  <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-      <div class="flex items-center mb-4">
-        <component :is="iconComponent" :class="iconClass" class="w-6 h-6 mr-3" />
-        <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
-      </div>
-      
-      <p class="text-gray-600 mb-6">{{ message }}</p>
-      
-      <div class="flex justify-end space-x-3">
-        <button 
-          @click="handleCancel"
-          class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-        >
-          {{ cancelText }}
-        </button>
-        <button 
-          @click="handleConfirm"
-          :class="[
-            'px-4 py-2 rounded font-medium',
-            type === 'danger' 
-              ? 'bg-red-600 hover:bg-red-700 text-white' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          ]"
-        >
-          {{ confirmText }}
-        </button>
+  <div v-if="visible" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title d-flex align-items-center">
+            <component :is="iconComponent" :class="iconClass" class="me-2" style="width: 1.5rem; height: 1.5rem;" />
+            {{ title }}
+          </h5>
+          <button type="button" class="btn-close" @click="handleCancel"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary mb-0">{{ message }}</p>
+        </div>
+        <div class="modal-footer">
+          <button 
+            @click="handleCancel"
+            class="btn btn-secondary"
+          >
+            {{ cancelText }}
+          </button>
+          <button 
+            @click="handleConfirm"
+            :class="[
+              'btn',
+              type === 'danger' ? 'btn-danger' : 'btn-primary'
+            ]"
+          >
+            {{ confirmText }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -33,7 +36,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { AlertTriangleIcon, MessageCircleQuestionIcon, SaveIcon } from 'lucide-vue-next'
+import { AlertTriangleIcon, FileQuestionIcon } from 'lucide-vue-next'
 
 const props = defineProps({
   visible: {
@@ -72,18 +75,18 @@ const iconComponent = computed(() => {
     case 'warning':
       return AlertTriangleIcon
     default:
-      return MessageCircleQuestionIcon
+      return FileQuestionIcon
   }
 })
 
 const iconClass = computed(() => {
   switch (props.type) {
     case 'danger':
-      return 'text-red-500'
+      return 'text-danger'
     case 'warning':
-      return 'text-yellow-500'
+      return 'text-warning'
     default:
-      return 'text-blue-500'
+      return 'text-primary'
   }
 })
 
